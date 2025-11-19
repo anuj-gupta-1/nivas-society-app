@@ -32,6 +32,29 @@ final currentUserProvider = StreamProvider<User?>((ref) {
   });
 });
 
+/// Provider for current user's project memberships (all statuses)
+/// 
+/// Returns list of all project memberships regardless of verification status
+/// Useful for checking if user has any memberships
+final userMembershipsProvider = StreamProvider<List<ProjectMembership>>((ref) {
+  final userId = ref.watch(currentUserIdProvider);
+  
+  if (userId == null) {
+    return Stream.value([]);
+  }
+  
+  final firestore = ref.watch(firestoreProvider);
+  return firestore
+      .collection(AppConstants.projectMembershipsCollection)
+      .where('user_id', isEqualTo: userId)
+      .snapshots()
+      .map((snapshot) {
+    return snapshot.docs
+        .map((doc) => ProjectMembership.fromFirestore(doc))
+        .toList();
+  });
+});
+
 /// Provider for current user's project memberships
 /// 
 /// Returns list of all projects the user belongs to
