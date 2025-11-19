@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nivas/models/thread.dart';
 import 'package:nivas/models/space.dart';
+import 'package:nivas/providers/auth_provider.dart';
 import 'package:nivas/providers/user_provider.dart';
 import 'package:nivas/providers/project_provider.dart';
 import 'package:nivas/providers/group_provider.dart';
