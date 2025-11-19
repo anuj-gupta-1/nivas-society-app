@@ -46,11 +46,18 @@ class _ThreadDetailScreenState extends ConsumerState<ThreadDetailScreen> {
     ref.read(loadingProvider.notifier).setLoading(true);
 
     try {
-      final userId = ref.read(currentUserIdProvider);
-      final currentUser = await ref.read(currentUserProvider.future);
+      final authState = await ref.read(authStateProvider.future);
+      final userId = authState?.uid;
+      final projectId = ref.read(currentProjectIdProvider);
       
-      if (userId == null || currentUser == null) {
-        throw Exception('User not found');
+      if (userId == null || projectId == null) {
+        throw Exception('User or project not found');
+      }
+
+      // Get user's membership to get display name
+      final membership = await ref.read(projectMembershipProvider(projectId).future);
+      if (membership == null) {
+        throw Exception('User membership not found');
       }
 
       final firestore = ref.read(firestoreProvider);
@@ -67,7 +74,7 @@ class _ThreadDetailScreenState extends ConsumerState<ThreadDetailScreen> {
         threadId: widget.threadId,
         content: content,
         authorId: userId,
-        authorName: currentUser.displayName,
+        authorName: membership.displayName,
         parentReplyId: _replyingToId,
         mentionedUserIds: _extractMentions(content),
         attachments: [], // TODO: Implement attachments

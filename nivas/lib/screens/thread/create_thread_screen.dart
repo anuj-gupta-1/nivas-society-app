@@ -44,12 +44,18 @@ class _CreateThreadScreenState extends ConsumerState<CreateThreadScreen> {
     ref.read(loadingProvider.notifier).setLoading(true);
 
     try {
-      final userId = ref.read(currentUserIdProvider);
+      final authState = await ref.read(authStateProvider.future);
+      final userId = authState?.uid;
       final projectId = ref.read(currentProjectIdProvider);
-      final currentUser = await ref.read(currentUserProvider.future);
       
-      if (userId == null || projectId == null || currentUser == null) {
+      if (userId == null || projectId == null) {
         throw Exception('User or project not found');
+      }
+
+      // Get user's membership to get display name
+      final membership = await ref.read(projectMembershipProvider(projectId).future);
+      if (membership == null) {
+        throw Exception('User membership not found');
       }
 
       // Get space details
@@ -72,7 +78,7 @@ class _CreateThreadScreenState extends ConsumerState<CreateThreadScreen> {
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
         authorId: userId,
-        authorName: currentUser.displayName,
+        authorName: membership.displayName,
         tagIds: [], // TODO: Implement tag selection
         mentionedUserIds: _extractMentions(_contentController.text),
         attachments: [], // TODO: Implement attachments
