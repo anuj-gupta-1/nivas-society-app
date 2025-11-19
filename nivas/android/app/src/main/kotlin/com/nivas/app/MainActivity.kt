@@ -1,4 +1,4 @@
-package com.societyapp.society_app
+package com.nivas.app
 
 import io.flutter.embedding.android.FlutterActivity
 
